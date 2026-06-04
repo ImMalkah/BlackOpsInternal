@@ -60,10 +60,6 @@ To build the Release DLL:
 2. Select the **Release | x86** configuration.
 3. Build the solution (`Ctrl+Shift+B`).
 
-Alternatively, compile from PowerShell:
-```powershell
-powershell -ExecutionPolicy Bypass -File scratch/build.ps1
-```
 The output DLL will be generated at:
 `Build\Release\x86\BlackOpsInternal.dll`
 
