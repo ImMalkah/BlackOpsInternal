@@ -22,3 +22,6 @@ Release/
 *.recipe
 *.iobj
 *.ipdb
+
+# Scratch files
+scratch/
