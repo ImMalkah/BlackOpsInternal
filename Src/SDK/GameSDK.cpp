@@ -39,11 +39,12 @@ namespace GameSDK
         std::uintptr_t cg_ptr = Memory::Read<std::uintptr_t>(cg_ptr_addr, 0);
         if (cg_ptr >= 0x10000 && cg_ptr < 0x7FFE0000)
         {
-            // Read team directly using the verified offset from CG_RelativeTeamColor decompilation (0x43E7E0)
-            // Index in DWORDs: 372 * clientNum + 97433.
-            // Offset in bytes: 1488 * clientNum + 389732.
-            int localTeam = Memory::Read<int>(cg_ptr + 1488 * localClientNum + 389732, 0);
-            int targetTeam = Memory::Read<int>(cg_ptr + 1488 * clientNum + 389732, 0);
+            std::uintptr_t clientInfoBase = cg_ptr + 389688; // 0x5F238
+            std::uintptr_t localClientPtr = clientInfoBase + sizeof(clientinfo_t) * localClientNum;
+            std::uintptr_t targetClientPtr = clientInfoBase + sizeof(clientinfo_t) * clientNum;
+
+            uint32_t localTeam = Memory::Read<uint32_t>(localClientPtr + offsetof(clientinfo_t, team), 0);
+            uint32_t targetTeam = Memory::Read<uint32_t>(targetClientPtr + offsetof(clientinfo_t, team), 0);
 
             // CoD team values:
             // 0: TEAM_FREE (unassigned or FFA)
@@ -109,12 +110,13 @@ namespace GameSDK
         std::uintptr_t cg_ptr = Memory::Read<std::uintptr_t>(cg_ptr_addr, 0);
         if (cg_ptr >= 0x10000 && cg_ptr < 0x7FFE0000)
         {
-            std::uintptr_t namePtr = cg_ptr + 1488 * clientNum + 389716;
+            std::uintptr_t clientInfoBase = cg_ptr + 389688; // 0x5F238
+            std::uintptr_t clientPtr = clientInfoBase + sizeof(clientinfo_t) * clientNum;
 
             char rawName[32] = { 0 };
             for (int i = 0; i < 31; i++)
             {
-                rawName[i] = Memory::Read<char>(namePtr + i, '\0');
+                rawName[i] = Memory::Read<char>(clientPtr + offsetof(clientinfo_t, name) + i, '\0');
             }
             rawName[31] = '\0';
 
@@ -137,17 +139,18 @@ namespace GameSDK
         if (entityBase == 0)
             return false;
 
-        std::uintptr_t entityPtr = entityBase + BlackOpsSDK::CEntitySize * clientNum;
+        std::uintptr_t entityPtr = entityBase + sizeof(centity_t) * clientNum;
 
-        // Check if entity is valid/alive (offset 804 is 2 for alive players, 0 for dead/inactive)
-        uint8_t valid = Memory::Read<uint8_t>(entityPtr + 804, 0);
-        if (valid == 0)
+        // Check if entity is valid/alive (bit 1 of interpolationFlags must be set, value 2 or 3)
+        uint32_t interpolationFlags = Memory::Read<uint32_t>(entityPtr + offsetof(centity_t, interpolationFlags), 0);
+        if ((interpolationFlags & 2) == 0)
             return false;
 
         // Read origin coordinates safely
-        posOut[0] = Memory::Read<float>(entityPtr + BlackOpsSDK::CEntityOriginOffset, 0.0f);
-        posOut[1] = Memory::Read<float>(entityPtr + BlackOpsSDK::CEntityOriginOffset + 4, 0.0f);
-        posOut[2] = Memory::Read<float>(entityPtr + BlackOpsSDK::CEntityOriginOffset + 8, 0.0f);
+        Vector3 position = Memory::Read<Vector3>(entityPtr + offsetof(centity_t, Position));
+        posOut[0] = position.x;
+        posOut[1] = position.y;
+        posOut[2] = position.z;
 
         // Sanity check coordinates to avoid rendering zero/uninitialized coords
         if (posOut[0] == 0.0f && posOut[1] == 0.0f)

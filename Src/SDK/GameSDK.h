@@ -1,8 +1,48 @@
 #pragma once
 #include <cstdint>
 
+struct Vector3
+{
+    float x;
+    float y;
+    float z;
+};
+
 namespace GameSDK
 {
+    class clientinfo_t
+    {
+    public:
+        uint32_t isValid; //0x0000
+        uint32_t isActive; //0x0004
+        uint32_t clientNum; //0x0008
+        char name[32]; //0x000C
+        uint32_t team; //0x002C
+        char pad_0030[52]; //0x0030
+        uint32_t ping; //0x0064
+        uint32_t isDead; //0x0068
+        char pad_006C[1380]; //0x006C
+    }; //Size: 0x05D0 (1488)
+    static_assert(sizeof(clientinfo_t) == 0x5D0, "clientinfo_t size mismatch");
+
+    class centity_t
+    {
+    public:
+        char pad_0000[48]; //0x0000
+        Vector3 Position; //0x0030
+        float Yaw; //0x003C
+        float Pitch; //0x0040
+        char pad_0044[420]; //0x0044
+        int32_t clientNum; //0x01E8
+        char pad_01EC[184]; //0x01EC
+        uint8_t N0001C982; //0x02A4
+        uint8_t N0001C9A4; //0x02A5
+        uint8_t type; //0x02A6
+        char pad_02A7[125]; //0x02A7
+        uint32_t interpolationFlags; //0x0324
+    }; //Size: 0x0328 (808)
+    static_assert(sizeof(centity_t) == 0x328, "centity_t size mismatch");
+
     // Resolve the local player's client slot from cg_t
     int GetLocalClientNum();
 

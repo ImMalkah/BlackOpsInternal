@@ -55,12 +55,11 @@ void PlayerESPFeature::OnRender()
         {
             for (int i = 0; i < 3; i++)
             {
-                std::uintptr_t derefPtr = derefedEntityBase + BlackOpsSDK::CEntitySize * i;
-                int dtype = Memory::Read<int16_t>(derefPtr + 676, -1);
-                float dposX = Memory::Read<float>(derefPtr + BlackOpsSDK::CEntityOriginOffset, 0.0f);
-                float dposY = Memory::Read<float>(derefPtr + BlackOpsSDK::CEntityOriginOffset + 4, 0.0f);
-                float dposZ = Memory::Read<float>(derefPtr + BlackOpsSDK::CEntityOriginOffset + 8, 0.0f);
-                Log::Debug("  Entity Slot %d: ptr = 0x%X, type = %d, pos = {%.2f, %.2f, %.2f}", i, derefPtr, dtype, dposX, dposY, dposZ);
+                std::uintptr_t derefPtr = derefedEntityBase + sizeof(GameSDK::centity_t) * i;
+                int16_t type = Memory::Read<int16_t>(derefPtr + offsetof(GameSDK::centity_t, type), -1);
+                Vector3 position = Memory::Read<Vector3>(derefPtr + offsetof(GameSDK::centity_t, Position));
+                Log::Debug("  Entity Slot %d: ptr = 0x%X, type = %d, pos = {%.2f, %.2f, %.2f}", 
+                           i, derefPtr, type, position.x, position.y, position.z);
             }
         }
     }

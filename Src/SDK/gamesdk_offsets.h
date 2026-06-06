@@ -50,11 +50,14 @@ namespace BlackOpsSDK
 
     constexpr std::uintptr_t CG_IsEntityFriendly = 0x5E2CB0;
     constexpr std::uintptr_t ClientInfoBase = 0xCBA4C0; // baseAddress + 0x8BA4C0
-    constexpr std::uintptr_t ClientSize = 104;          // sizeof(clientInfo_t) (0x68)
-    constexpr std::uintptr_t ClientNameOffset = 0;      // Name starts at offset 0 (0x0)
+    constexpr std::uintptr_t ClientSize = 0x68;          // sizeof(clientInfo_t) (0x68)
+    constexpr std::uintptr_t ClientNameOffset = 0x0;      // Name starts at offset 0 (0x0)
 
     // Entity array and layout settings
     constexpr std::uintptr_t CG_EntitiesBase = 0xD52374; // Pointer to array of entities (centity_t) -> BlackOpsMP.exe + 0x952374 (assuming 0x400000 base)
-    constexpr std::uintptr_t CEntitySize = 808;          // sizeof(centity_t) (0x328)
-    constexpr std::uintptr_t CEntityOriginOffset = 48;   // offsetof(centity_t, pos) (0x30)
+    constexpr std::uintptr_t CEntitySize = 0x328;          // sizeof(centity_t) (0x328)
+    constexpr std::uintptr_t CEntityOriginOffset = 0x30;   // offsetof(centity_t, pos) (0x30)
+    constexpr std::uintptr_t CEntityTypeOffset = 0x2A6;     // offsetof(centity_t, type) (678)
+    constexpr std::uintptr_t CEntityValidOffset = 0x324;    // offsetof(centity_t, valid) (804)
+    constexpr std::uintptr_t CEntityClientNumOffset = 0x1E8; // offsetof(centity_t, clientNum) (488)
 }

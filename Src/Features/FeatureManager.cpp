@@ -249,11 +249,21 @@ namespace FeatureManager
             ImGui::TableSetupColumn("Entity Ptr", ImGuiTableColumnFlags_WidthFixed, 90.0f);
             ImGui::TableHeadersRow();
 
+            std::uintptr_t cg_ptr_addr = baseAddress - 0x400000 + 0xD4F178;
+            std::uintptr_t cg_ptr = Memory::Read<std::uintptr_t>(cg_ptr_addr, 0);
+
             // Loop through maximum 32 possible client slots in a match
             for (int i = 0; i < 32; i++)
             {
-                float enemyPos[3] = { 0.0f, 0.0f, 0.0f };
-                if (!GameSDK::SafeReadEntityData(i, enemyPos))
+                if (cg_ptr == 0)
+                    continue;
+
+                std::uintptr_t clientInfoBase = cg_ptr + 389688; // 0x5F238
+                std::uintptr_t clientPtr = clientInfoBase + sizeof(GameSDK::clientinfo_t) * i;
+                uint32_t isActive = Memory::Read<uint32_t>(clientPtr + offsetof(GameSDK::clientinfo_t, isActive), 0);
+
+                // List the entities based on isActive (shows connected clients even if they are dead)
+                if (isActive == 0)
                     continue;
 
                 std::uintptr_t entityBaseAddr = baseAddress - 0x400000 + BlackOpsSDK::CG_EntitiesBase;
@@ -261,10 +271,13 @@ namespace FeatureManager
                 if (entityBase == 0)
                     continue;
 
-                std::uintptr_t entityPtr = entityBase + BlackOpsSDK::CEntitySize * i;
+                std::uintptr_t entityPtr = entityBase + sizeof(GameSDK::centity_t) * i;
+                int16_t type = Memory::Read<int16_t>(entityPtr + offsetof(GameSDK::centity_t, type), -1);
+                uint32_t interpolationFlags = Memory::Read<uint32_t>(entityPtr + offsetof(GameSDK::centity_t, interpolationFlags), 0);
+                uint8_t valid = interpolationFlags & 0xFF;
 
-                int16_t type = Memory::Read<int16_t>(entityPtr + 676, -1);
-                uint8_t valid = Memory::Read<uint8_t>(entityPtr + 804, 0);
+                Vector3 position = Memory::Read<Vector3>(entityPtr + offsetof(GameSDK::centity_t, Position));
+                float enemyPos[3] = { position.x, position.y, position.z };
 
                 char nameClean[32] = { 0 };
                 bool hasName = GameSDK::SafeReadClientInfo(i, nameClean);
