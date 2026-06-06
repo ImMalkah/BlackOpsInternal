@@ -99,6 +99,8 @@
     <ClInclude Include="Src\Features\FeatureManager.h" />
     <ClInclude Include="Src\Features\OverheadNames.h" />
     <ClInclude Include="Src\Features\PlayerESP.h" />
+    <ClInclude Include="Src\Features\DebugInfo.h" />
+    <ClInclude Include="Src\Features\ConstantRadar.h" />
     <ClInclude Include="Src\SDK\gamesdk_offsets.h" />
     <ClInclude Include="Src\SDK\GameSDK.h" />
     <ClInclude Include="Src\Engine\HookManager.h" />
@@ -108,6 +110,8 @@
     <ClCompile Include="Src\Features\FeatureManager.cpp" />
     <ClCompile Include="Src\Features\OverheadNames.cpp" />
     <ClCompile Include="Src\Features\PlayerESP.cpp" />
+    <ClCompile Include="Src\Features\DebugInfo.cpp" />
+    <ClCompile Include="Src\Features\ConstantRadar.cpp" />
     <ClCompile Include="Src\SDK\GameSDK.cpp" />
     <ClCompile Include="Src\Engine\HookManager.cpp" />
     <ClCompile Include="Src\Engine\dllmain.cpp" />

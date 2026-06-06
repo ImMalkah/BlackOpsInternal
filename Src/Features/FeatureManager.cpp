@@ -7,6 +7,8 @@
 #include "Core/Memory.h"
 #include "OverheadNames.h"
 #include "PlayerESP.h"
+#include "DebugInfo.h"
+#include "ConstantRadar.h"
 #include <cstring>
 #include <cmath>
 #include <Windows.h>
@@ -58,6 +60,8 @@ namespace FeatureManager
         {
             g_features.push_back(&g_overheadNamesFeature);
             g_features.push_back(&g_playerESPFeature);
+            g_features.push_back(&g_constantRadarFeature);
+            g_features.push_back(&g_debugInfoFeature);
         }
     }
 
@@ -211,10 +215,11 @@ namespace FeatureManager
 
         if (localPlayerPtr >= 0x10000 && localPlayerPtr < 0x7FFE0000)
         {
-            localPos[0] = Memory::Read<float>(localPlayerPtr + 0x24, 0.0f);
-            localPos[1] = Memory::Read<float>(localPlayerPtr + 0x28, 0.0f);
-            localPos[2] = Memory::Read<float>(localPlayerPtr + 0x2C, 0.0f);
-            localHealth = Memory::Read<int>(localPlayerPtr + 0x1C4, 0);
+            Vector3 pos = Memory::Read<Vector3>(localPlayerPtr + offsetof(GameSDK::playerState_t, position));
+            localPos[0] = pos.x;
+            localPos[1] = pos.y;
+            localPos[2] = pos.z;
+            localHealth = Memory::Read<uint32_t>(localPlayerPtr + offsetof(GameSDK::playerState_t, health), 0);
             hasLocalPlayer = true;
         }
 
@@ -248,7 +253,7 @@ namespace FeatureManager
                 ImGui::TableSetupColumn("Slot", ImGuiTableColumnFlags_WidthFixed, 40.0f);
                 ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Team", ImGuiTableColumnFlags_WidthFixed, 70.0f);
-                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+                ImGui::TableSetupColumn("Health", ImGuiTableColumnFlags_WidthFixed, 60.0f);
                 ImGui::TableSetupColumn("Coordinates (X, Y, Z)", ImGuiTableColumnFlags_WidthStretch);
                 ImGui::TableSetupColumn("Distance", ImGuiTableColumnFlags_WidthFixed, 80.0f);
                 ImGui::TableSetupColumn("Entity Ptr", ImGuiTableColumnFlags_WidthFixed, 90.0f);
@@ -337,9 +342,25 @@ namespace FeatureManager
                             ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f), "Enemy");
                     }
 
-                    // Type
+                    // Health
                     ImGui::TableNextColumn();
-                    ImGui::Text("T:%d V:%d", type, valid);
+                    if (isLocal && hasLocalPlayer)
+                    {
+                        ImGui::TextColored(ImVec4(0.2f, 1.0f, 0.2f, 1.0f), "%d HP", localHealth);
+                    }
+                    else
+                    {
+                        uint32_t isDead = Memory::Read<uint32_t>(clientPtr + offsetof(GameSDK::clientinfo_t, isDead), 0);
+                        bool isAlive = (isDead == 0) && ((valid & 2) != 0);
+                        if (isAlive)
+                        {
+                            ImGui::TextColored(ImVec4(0.2f, 1.0f, 0.2f, 1.0f), "100 HP");
+                        }
+                        else
+                        {
+                            ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f), "0 HP");
+                        }
+                    }
 
                     // Coordinates
                     ImGui::TableNextColumn();

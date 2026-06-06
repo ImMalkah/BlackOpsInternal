@@ -43,6 +43,22 @@ namespace GameSDK
     }; //Size: 0x0328 (808)
     static_assert(sizeof(centity_t) == 0x328, "centity_t size mismatch");
 
+    class playerState_t
+    {
+    public:
+        char pad_0000[36]; //0x0000
+        Vector3 position; //0x0024
+        Vector3 velocity; //0x0030
+        char pad_003C[264]; //0x003C
+        uint16_t currentEquippedWeaponIndex; //0x0144
+        char pad_0146[58]; //0x0146
+        Vector3 viewAngles; //0x0180
+        char pad_018C[56]; //0x018C
+        uint32_t health; //0x01C4
+        char pad_01C8[500]; //0x01C8
+    }; //Size: 0x03BC
+    static_assert(sizeof(playerState_t) == 0x3BC, "playerState_t size mismatch");
+
     // Resolve the local player's client slot from cg_t
     int GetLocalClientNum();
 

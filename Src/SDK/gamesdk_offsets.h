@@ -59,5 +59,6 @@ namespace BlackOpsSDK
     constexpr std::uintptr_t CEntityOriginOffset = 0x30;   // offsetof(centity_t, pos) (0x30)
     constexpr std::uintptr_t CEntityTypeOffset = 0x2A6;     // offsetof(centity_t, type) (678)
     constexpr std::uintptr_t CEntityValidOffset = 0x324;    // offsetof(centity_t, valid) (804)
-    constexpr std::uintptr_t CEntityClientNumOffset = 0x1E8; // offsetof(centity_t, clientNum) (488)
+    // Dvar pointer for g_compassShowEnemies
+    constexpr std::uintptr_t g_compassShowEnemies_ptr = 0x343E6F4; 
 }

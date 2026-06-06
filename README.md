@@ -11,10 +11,15 @@ A premium, performance-optimized, and exception-safe internal cheat DLL for **Ca
     *   Caret-cleaned Player Name tags.
     *   Teammate filtering toggle.
     *   Distance slider for custom rendering ranges.
+*   **Constant Radar**
+    *   Forces enemy red dots to draw on the minimap/compass at all times by bypassing native UAV status checks.
+    *   Safely updates the `g_compassShowEnemies` Dvar pointer and the internal `activeUAVs` & `activeSatellites` team status arrays.
 *   **Overhead Name Customization**
     *   **Force Enemy Names**: Forces the game engine to render nameplates for enemy players.
     *   **Custom Display Mode**: Forces names/icons/ranks display modes.
     *   **Disable**: Complete override to block overhead nameplates from rendering.
+*   **HUD Debug Diagnostics**
+    *   Allows toggling native engine debug graphics (FPS, Lagometer, View Position) directly via ImGui menu controls by writing to `cg_drawFPS`, `cg_drawLagometer`, and `debug_show_viewpos`.
 *   **Active Entity List**
     *   An interactive debug table displaying all active slots, clean names, team affiliations, entity type, coordinates, real-time 3D distance, and raw entity pointer addresses.
 *   **Crash-Resistant Design**
@@ -89,6 +94,14 @@ The output DLL will be generated at:
     *   Team ID offset is `97433 * 4 = 389732` bytes.
     
     The team check now reads directly from `cg_ptr + 1488 * clientNum + 389732`, matching the game's native team classification.
+
+### 4. Constant Radar (UAV Bypass)
+*   **Issue**: Modifying only the `g_compassShowEnemies` Dvar (`0x343E6F4`) did not reveal enemies on the radar if no UAV killstreak was active, because the engine skipped calculating and drawing red dots when the internal UAV status flags were inactive.
+*   **Fix**: Reversed the drawing check function `sub_538FF0` to map the game's UAV checks. Added a feature writing directly to the team status arrays:
+    - **`activeSatellites`** (Advanced UAV / SR-71): `0x3446814`
+    - **`activeUAVs`** (Standard UAV): `0x3446824`
+    
+    Writing `1` to these addresses for the client's team forces the engine to bypass target filtering and render all enemy dots natively.
 
 ---
 
